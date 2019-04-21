@@ -1,10 +1,12 @@
 package main
 
 import (
-    "fmt"
-    "log"
-	"net/http"
 	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -50,7 +52,7 @@ func main() {
 	//get starting and end time for call-up report
 	now := time.Now()
 	enddate := now.Format("20060102")
-	start := now.AddDate(0,0,-7)
+	start := now.AddDate(0, 0, -7)
 	startdate := start.Format("20060102")
 
 	fmt.Println("Starting Weelky Callup Aggregator...")
@@ -95,17 +97,40 @@ func main() {
 		log.Println(err)
 	}
 
-	// This will iterate through all the weekly callups
+	total_size_string := record.TransactionAll.QueryResults.TotalSize
+	//fmt.Println("Total Size String: ", total_size_string)
+	total_size, err := strconv.Atoi(total_size_string)
+	if err != nil {
+		// handle error
+		fmt.Println(err)
+		os.Exit(2)
+	}
+	//fmt.Println("Total Size Int: ", total_size)
 	fmt.Println("Current date: ", enddate)
 	fmt.Println("Start date: ", startdate)
 	fmt.Println("Date created:", record.TransactionAll.QueryResults.Created)
 	fmt.Println("Date created:", record.TransactionAll.QueryResults.TotalSize)
-	fmt.Println("Player 0:", record.TransactionAll.QueryResults.Row[0].Player)
-	fmt.Println("Player 0 ID:", record.TransactionAll.QueryResults.Row[0].PlayerID)
-	fmt.Println("Player 0 Transaction Date:", record.TransactionAll.QueryResults.Row[0].TransDate)
-	fmt.Println("Player 0 Team:", record.TransactionAll.QueryResults.Row[0].Team)
-	fmt.Println("Player 0 Notes:", record.TransactionAll.QueryResults.Row[0].Note)
+	fmt.Println("===========================================================")
+	fmt.Println("== Player Info                                           ==")
+	fmt.Println("===========================================================")
 
-	player25 := record.TransactionAll.QueryResults.Row[25]
-	fmt.Println(player25)
+	const (
+		host     = "localhost"
+		port     = 5432
+		user     = "bb-writer"
+		password = "password"
+		dbname   = "baseball-app"
+	)
+
+	for i := 0; i < total_size; i++ {
+		// This will iterate through all the weekly callups
+		fmt.Println("")
+		fmt.Println("Player:", record.TransactionAll.QueryResults.Row[i].Player)
+		fmt.Println("PlayerID:", record.TransactionAll.QueryResults.Row[i].PlayerID)
+		fmt.Println("Player Transaction Date:", record.TransactionAll.QueryResults.Row[i].TransDate)
+		fmt.Println("Player Team:", record.TransactionAll.QueryResults.Row[i].Team)
+		fmt.Println("Player Notes:", record.TransactionAll.QueryResults.Row[i].Note)
+		fmt.Println("")
+		fmt.Println("===========================================================")
+	}
 }
