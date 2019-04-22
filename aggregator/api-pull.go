@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -8,6 +9,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	_ "github.com/lib/pq"
 )
 
 type WeeklyCallUps struct {
@@ -122,6 +125,19 @@ func main() {
 		dbname   = "baseball-app"
 	)
 
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
 	for i := 0; i < total_size; i++ {
 		// This will iterate through all the weekly callups
 		fmt.Println("")
@@ -132,5 +148,19 @@ func main() {
 		fmt.Println("Player Notes:", record.TransactionAll.QueryResults.Row[i].Note)
 		fmt.Println("")
 		fmt.Println("===========================================================")
+
+		playername := record.TransactionAll.QueryResults.Row[i].Player
+		playerid := record.TransactionAll.QueryResults.Row[i].PlayerID
+		xdate := record.TransactionAll.QueryResults.Row[i].TransDate
+		team := record.TransactionAll.QueryResults.Row[i].Team
+		notes := record.TransactionAll.QueryResults.Row[i].Note
+
+		sqlStatement := `
+		INSERT INTO transactions (playername, playerid, xdate, team, notes)
+		VALUES ($1, $2, $3, $4, $5)`
+		_, err = db.Exec(sqlStatement, playername, playerid, xdate, team, notes)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
