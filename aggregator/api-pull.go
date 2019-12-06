@@ -118,6 +118,7 @@ func main() {
 	fmt.Println("===========================================================")
 
 	const (
+		//host     = "192.168.65.2"
 		host     = "localhost"
 		port     = 5432
 		user     = "bb-writer"
@@ -140,27 +141,36 @@ func main() {
 
 	for i := 0; i < total_size; i++ {
 		// This will iterate through all the weekly callups
+		b := json.Marshal(record.TransactionAll.QueryResults.Row[i])
+
 		fmt.Println("")
 		fmt.Println("Player:", record.TransactionAll.QueryResults.Row[i].Player)
 		fmt.Println("PlayerID:", record.TransactionAll.QueryResults.Row[i].PlayerID)
 		fmt.Println("Player Transaction Date:", record.TransactionAll.QueryResults.Row[i].TransDate)
 		fmt.Println("Player Team:", record.TransactionAll.QueryResults.Row[i].Team)
 		fmt.Println("Player Notes:", record.TransactionAll.QueryResults.Row[i].Note)
+		fmt.Println(string(b))
 		fmt.Println("")
 		fmt.Println("===========================================================")
+		/*
+			playername := record.TransactionAll.QueryResults.Row[i].Player
+			playerid := record.TransactionAll.QueryResults.Row[i].PlayerID
+			xdate := record.TransactionAll.QueryResults.Row[i].TransDate
+			team := record.TransactionAll.QueryResults.Row[i].Team
+			notes := record.TransactionAll.QueryResults.Row[i].Note
+			effective_date := record.TransactionAll.QueryResults.Row[i].EffectiveDate
+			xid := record.TransactionAll.QueryResults.Row[i].TransactionID
+			from_team_id := record.TransactionAll.QueryResults.Row[i].FromTeamID
+			transaction_type := record.TransactionAll.QueryResults.Row[i].Type
+			team_id := record.TransactionAll.QueryResults.Row[i].TeamID
 
-		playername := record.TransactionAll.QueryResults.Row[i].Player
-		playerid := record.TransactionAll.QueryResults.Row[i].PlayerID
-		xdate := record.TransactionAll.QueryResults.Row[i].TransDate
-		team := record.TransactionAll.QueryResults.Row[i].Team
-		notes := record.TransactionAll.QueryResults.Row[i].Note
-
-		sqlStatement := `
-		INSERT INTO transactions (playername, playerid, xdate, team, notes)
-		VALUES ($1, $2, $3, $4, $5)`
-		_, err = db.Exec(sqlStatement, playername, playerid, xdate, team, notes)
-		if err != nil {
-			panic(err)
-		}
+			sqlStatement := `
+			INSERT INTO transactions (playername, playerid, xdate, team, notes, effective_date, xid, team_id, from_team_id, transaction_type)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+			_, err = db.Exec(sqlStatement, playername, playerid, xdate, team, notes, effective_date, xid, team_id, from_team_id, transaction_type)
+			if err != nil {
+				panic(err)
+			}
+		*/
 	}
 }
